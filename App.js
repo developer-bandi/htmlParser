@@ -1,13 +1,15 @@
-const Request = require("./network/request");
-const responseParse = require("./network/responseParse");
+const util = require("util");
+const tokenizer = require("./tokenizer");
+const treeBuilder = require("./treeBuilder");
 
-const App = async () => {
-  const url = "https://127.0.0.1:8080";
-  const request = new Request(url);
-  const response = await request.send();
-  const { header, body } = responseParse(response);
+const html =
+  '<html><head></head><body><div id="root" class="rootClass">hello</div></body></html>';
 
-  console.log(header, body);
+const App = () => {
+  const tokens = tokenizer(html);
+  const domTree = treeBuilder(tokens);
+
+  console.log(util.inspect(domTree, false, null));
 };
 
 App();

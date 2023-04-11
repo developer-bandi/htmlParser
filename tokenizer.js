@@ -1,15 +1,11 @@
-const DATA_STATE = "dataState";
-const TAG_OPEN_STATE = "tagOpenState";
-const TAG_NAME_STATE = "tagNameState";
-const START_TOKEN = "startToken";
-const END_TOKEN = "endToken";
-const TEXT_TOKEN = "textToken";
-const util = require("util");
-
-const singleTag = ["br", "img", "hr"];
-
-const html =
-  '<html><head></head><body><div id="root" class="rootClass">hello</div></body></html>';
+const {
+  DATA_STATE,
+  TAG_OPEN_STATE,
+  TAG_NAME_STATE,
+  START_TOKEN,
+  END_TOKEN,
+  TEXT_TOKEN,
+} = require("./constant");
 
 const tokenizer = (html) => {
   const tokens = [];
@@ -78,55 +74,4 @@ const tokenizer = (html) => {
   return tokens;
 };
 
-const treeBuilder = (tokens) => {
-  const stack = [];
-
-  stack.push({
-    type: "document",
-    children: [],
-  });
-
-  for (let i = 0; i < tokens.length; i++) {
-    const { type, tagName, content } = tokens[i];
-    const attributes = Object.fromEntries(
-      Object.entries(tokens[i]).filter(
-        ([key]) => key !== "type" && key !== "tagName"
-      )
-    );
-    if (type === START_TOKEN) {
-      const node = {
-        type: "element",
-        tagName,
-        attributes,
-        children: [],
-      };
-
-      stack[stack.length - 1].children.push(node);
-
-      if (!singleTag.includes(type)) {
-        stack.push(node);
-      }
-    } else if (type === END_TOKEN) {
-      while (stack[stack.length - 1].tagName !== tagName) {
-        stack.pop();
-      }
-      stack.pop();
-    } else {
-      const node = {
-        type: "text",
-        content,
-      };
-
-      stack[stack.length - 1].children.push(node);
-    }
-  }
-
-  while (stack.length > 1) {
-    stack.pop();
-  }
-  return stack[0];
-};
-
-const result = treeBuilder(tokenizer(html));
-
-console.log(util.inspect(result, false, null));
+module.exports = tokenizer;
